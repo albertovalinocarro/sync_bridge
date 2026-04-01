@@ -1,8 +1,15 @@
-# Symfony
+# Symfony application
 app/vendor/
 app/var/
 app/.env.local
 app/.env.*.local
+app/.env
+app/.env.dev
+app/.env.test
+
+# Symfony generated files - already in app/.gitignore
+app/compose.yaml
+app/compose.override.yaml
 
 # Docker
 .docker/
@@ -15,3 +22,4 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+*.swo
