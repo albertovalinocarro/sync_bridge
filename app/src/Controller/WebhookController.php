@@ -36,9 +36,9 @@ final class WebhookController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json([
-            'status'   => 'received',
-            'event'    => $event->getEventType(),
-            'id'       => $event->getId(),
+            'status' => 'received',
+            'event' => $event->getEventType(),
+            'id' => $event->getId(),
             'clientId' => $event->getClientId(),
         ], 202);
     }
