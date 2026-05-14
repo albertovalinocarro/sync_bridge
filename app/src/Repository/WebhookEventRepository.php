@@ -16,28 +16,47 @@ class WebhookEventRepository extends ServiceEntityRepository
         parent::__construct($registry, WebhookEvent::class);
     }
 
-    //    /**
-    //     * @return WebhookEvent[] Returns an array of WebhookEvent objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('w')
-    //            ->andWhere('w.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('w.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findByFilters(
+        ?string $clientId = null,
+        ?string $status = null,
+        int $limit = 20,
+        int $offset = 0
+    ): array {
+        $qb = $this->createQueryBuilder('w')
+            ->orderBy('w.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
 
-    //    public function findOneBySomeField($value): ?WebhookEvent
-    //    {
-    //        return $this->createQueryBuilder('w')
-    //            ->andWhere('w.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($clientId !== null) {
+            $qb->andWhere('w.clientId = :clientId')
+                ->setParameter('clientId', $clientId);
+        }
+
+        if ($status !== null) {
+            $qb->andWhere('w.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countByFilters(
+        ?string $clientId = null,
+        ?string $status = null
+    ): int {
+        $qb = $this->createQueryBuilder('w')
+            ->select('COUNT(w.id)');
+        
+        if ($clientId !== null) {
+            $qb->andWhere('w.clientId = :clientId')
+                ->setParameter('clientId', $clientId);
+        }
+
+        if ($status !== null) {
+            $qb->andWhere('w.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
 }
