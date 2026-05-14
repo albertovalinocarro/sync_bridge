@@ -5,6 +5,7 @@ namespace App\MessageHandler;
 use App\Integration\ClientIntegrationResolver;
 use App\Message\OrderReceivedMessage;
 use App\Repository\WebhookEventRepository;
+use App\Service\WmsClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -16,7 +17,8 @@ final class OrderReceivedMessageHandler
         private WebhookEventRepository $repository,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger,
-        private ClientIntegrationResolver $resolver
+        private ClientIntegrationResolver $resolver,
+        private WmsClient $wmsClient
     ) {}
 
     public function __invoke(OrderReceivedMessage $message): void
@@ -41,17 +43,30 @@ final class OrderReceivedMessageHandler
             return;
         }
 
-        $integration = $this->resolver->resolve($clientId);
-        $normalised = $integration->transform($event->getPayload());
+        try{
+            $integration = $this->resolver->resolve($clientId);
+            $normalised = $integration->transform($event->getPayload());
+            $wmsResponse = $this->wmsClient->syncOrder($normalised);
 
-        // This is where real processing will go — syncing to WMS/ERP
-        $this->logger->info('Processing webhook event', [
-            'id' => $event->getId(),
-            'client_id' => $clientId,
-            'normalised' => $normalised,
-        ]);
+            // This is where real processing will go — syncing to WMS/ERP
+            $this->logger->info('Order synced to WMS', [
+                'id' => $event->getId(),
+                'client_id' => $clientId,
+                'wms_order_id' => $wmsResponse['wms_order_id'] ?? null,
+            ]);
 
-        $event->setStatus('processed');
-        $this->entityManager->flush();
+            $event->setStatus('synced');
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to sync order to WMS', [
+                'id' => $event->getId(),
+                'error' => $e->getMessage(),
+            ]);
+
+            $event->setStatus('failed');
+
+        } finally {
+            $this->entityManager->flush();
+        }
+
     }
 }
