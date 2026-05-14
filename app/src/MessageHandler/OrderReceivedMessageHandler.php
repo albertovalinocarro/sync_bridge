@@ -2,6 +2,7 @@
 
 namespace App\MessageHandler;
 
+use App\Integration\ClientIntegrationResolver;
 use App\Message\OrderReceivedMessage;
 use App\Repository\WebhookEventRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +15,8 @@ final class OrderReceivedMessageHandler
     public function __construct(
         private WebhookEventRepository $repository,
         private EntityManagerInterface $entityManager,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private ClientIntegrationResolver $resolver
     ) {}
 
     public function __invoke(OrderReceivedMessage $message): void
@@ -28,12 +30,25 @@ final class OrderReceivedMessageHandler
             return;
         }
 
+        $clientId = $event->getClientId();
+
+        if (!$this->resolver->supports($clientId)){
+            $this->logger->warning('No integration found for client', [
+                'client_id' => $clientId
+            ]);
+            $event->setStatus('skipped');
+            $this->entityManager->flush();
+            return;
+        }
+
+        $integration = $this->resolver->resolve($clientId);
+        $normalised = $integration->transform($event->getPayload());
+
         // This is where real processing will go — syncing to WMS/ERP
-        // For now we just update the status to show async processing worked
         $this->logger->info('Processing webhook event', [
-            'id'        => $event->getId(),
-            'client_id' => $event->getClientId(),
-            'event'     => $event->getEventType(),
+            'id' => $event->getId(),
+            'client_id' => $clientId,
+            'normalised' => $normalised,
         ]);
 
         $event->setStatus('processed');
