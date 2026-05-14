@@ -3,17 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\WebhookEvent;
+use App\Message\OrderReceivedMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class WebhookController extends AbstractController
 {
 
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private MessageBusInterface $bus
     ) {}
 
     // Define a route for handling incoming webhook requests from the e-commerce platform
@@ -34,6 +37,8 @@ final class WebhookController extends AbstractController
 
         $this->entityManager->persist($event);
         $this->entityManager->flush();
+
+        $this->bus->dispatch(new OrderReceivedMessage($event->getId()));
 
         return $this->json([
             'status' => 'received',
