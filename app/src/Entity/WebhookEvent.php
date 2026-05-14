@@ -6,6 +6,8 @@ use App\Repository\WebhookEventRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: WebhookEventRepository::class)]
+#[ORM\Index(name: 'idx_client_status', columns: ['client_id', 'status'])]
+#[ORM\Index(name: 'idx_created_at', columns: ['created_at'])]
 class WebhookEvent
 {
     public function __construct()

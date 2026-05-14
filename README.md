@@ -195,8 +195,8 @@ php bin/phpunit
 - [x]Symfony Messenger — async processing pipeline
 - [x] Multi-client configuration layer
 - [x] Outbound sync — mock WMS/ERP integration
-- [ ] Failure handling — retries and dead letter queue
-- [ ] REST API — sync status per client
+- [x] Failure handling — retries and dead letter queue
+- [x] REST API — sync status per client
 - [ ] Idempotency — duplicate webhook handling
 - [ ] PHPUnit test coverage
 
