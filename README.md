@@ -191,10 +191,10 @@ php bin/phpunit
 - [x] Docker environment (PHP, Nginx, MySQL, Redis)
 - [x] Symfony 7.4 application scaffold
 - [x] Webhook endpoint — order received
-- [ ] Doctrine entity — persist webhook payloads
-- [ ] Symfony Messenger — async processing pipeline
-- [ ] Multi-client configuration layer
-- [ ] Outbound sync — mock WMS/ERP integration
+- [x] Doctrine entity — persist webhook payloads
+- [x]Symfony Messenger — async processing pipeline
+- [x] Multi-client configuration layer
+- [x] Outbound sync — mock WMS/ERP integration
 - [ ] Failure handling — retries and dead letter queue
 - [ ] REST API — sync status per client
 - [ ] Idempotency — duplicate webhook handling
