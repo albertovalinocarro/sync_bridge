@@ -2,7 +2,8 @@
 
 A multi-client middleware platform built with Symfony 7.4 that receives Shopify webhooks, processes them asynchronously, and syncs order and inventory data to downstream ERP/WMS systems.
 
-Built as a learning project mirroring real-world integration platform architecture.
+Built to mirror real-world integration platform architecture — multi-client webhook ingestion, async processing via Symfony Messenger, and outbound sync to downstream ERP/WMS systems.
+
 
 ---
 
@@ -192,7 +193,7 @@ php bin/phpunit
 - [x] Symfony 7.4 application scaffold
 - [x] Webhook endpoint — order received
 - [x] Doctrine entity — persist webhook payloads
-- [x]Symfony Messenger — async processing pipeline
+- [x] Symfony Messenger — async processing pipeline
 - [x] Multi-client configuration layer
 - [x] Outbound sync — mock WMS/ERP integration
 - [x] Failure handling — retries and dead letter queue
