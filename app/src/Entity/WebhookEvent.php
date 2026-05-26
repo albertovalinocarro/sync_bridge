@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: WebhookEventRepository::class)]
 #[ORM\Index(name: 'idx_client_status', columns: ['client_id', 'status'])]
 #[ORM\Index(name: 'idx_created_at', columns: ['created_at'])]
+#[ORM\UniqueConstraint(name: 'uniq_idempotency_key', columns: ['idempotency_key'])]
 class WebhookEvent
 {
     public function __construct()
@@ -35,6 +36,9 @@ class WebhookEvent
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $idempotencyKey = null;
 
     public function getId(): ?int
     {
@@ -97,6 +101,18 @@ class WebhookEvent
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getIdempotencyKey(): ?string
+    {
+        return $this->idempotencyKey;
+    }
+
+    public function setIdempotencyKey(?string $idempotencyKey): static
+    {
+        $this->idempotencyKey = $idempotencyKey;
 
         return $this;
     }

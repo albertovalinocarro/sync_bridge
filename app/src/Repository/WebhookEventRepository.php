@@ -59,4 +59,9 @@ class WebhookEventRepository extends ServiceEntityRepository
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
+
+    public function findByIdempotencyKey(string $key): ?WebhookEvent
+    {
+        return $this->findOneBy(['idempotencyKey' => $key]);
+    }
 }
