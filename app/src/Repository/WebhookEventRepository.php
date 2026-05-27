@@ -64,4 +64,21 @@ class WebhookEventRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['idempotencyKey' => $key]);
     }
+
+    public function findDistinctClientIds(): array
+    {
+        $result = $this->createQueryBuilder('w')
+            ->select('w.clientId')
+            ->distinct()
+            ->orderBy('w.clientId', 'ASC')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $result;
+    }
+
+    public function findByStatus(string $status, ?string $clientId = null): array
+    {
+        return $this->findByFilters($clientId, $status, 100, 0);
+    }
 }
